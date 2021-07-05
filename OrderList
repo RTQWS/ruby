@@ -37,3 +37,18 @@ class OrderList
       }
     }
   end
+  
+  
+  def read_file
+    file = File.open('order.txt', 'r:UTF-8')
+    tours = file.read.force_encoding('cp866').split("\n")
+    tours.each do |order|
+      puts order
+      order = order.split(' || ')
+      order.map { |elem| elem.force_encoding('UTF-8') }
+      add(Order.new(order[0], order[1], order[2], order[3],
+                    order[4], order[5]))
+    end
+  end
+end
+
