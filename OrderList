@@ -1,0 +1,39 @@
+require_relative 'Order'
+
+class OrderList
+  def initialize
+    @list = []
+  end
+
+  def add(order)
+    @list << order
+  end
+
+  def length
+    @list.length
+  end
+
+  def to_s
+    @list.each {|order| order.to_s }
+  end
+
+  def delete(order)
+    @list.delete(order)
+  end
+
+  def list_length
+    @list.length
+  end
+
+  def search(info)
+    @list.select{ |order| order.full_name == info || order.car == info || order.start_date == info || order.end_date == info}[0]
+  end
+
+  def write_file
+    f = File.open('order.txt', 'a:UTF8') {|file|
+      @list.each{|order|
+        file.write(order.full_name << ' || ' << order.phone << ' || ' << order.car << ' || ' << order.price.split(' ')[0] << ' || ' <<
+                     order.start_date << ' || ' << order.end_date << "\n")
+      }
+    }
+  end
