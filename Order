@@ -1,0 +1,104 @@
+class Order
+  attr_reader :full_name, :car,:price, :start_date, :end_date, :phone
+
+
+  def initialize(full_name, phone, car, price, start_date, end_date)
+    self.full_name = full_name
+    self.phone = phone
+    self.car = car
+    self.price = price
+    self.start_date = start_date
+    self.end_date = end_date
+  end
+
+  def full_name=(new_full_name)
+    @full_name = Order.name_format(new_full_name)
+  end
+
+  def car=(new_car)
+    @car = new_car
+  end
+
+  def phone=(new_phone)
+    @phone = Order.phone_format(new_phone)
+  end
+
+  def price=(new_price)
+    @price = Order.price_format(new_price)
+  end
+
+  def start_date=(new_start_date)
+    @start_date = Order.date_format(new_start_date)
+  end
+
+  def end_date=(new_end_date)
+    @end_date = Order.date_format(new_end_date)
+  end
+
+  def self.name_check(name)
+     name =~ /^(?:[а-яА-ЯA-Za-z]+|[а-яА-ЯA-Za-z]+[\s]*-[\s]*[a-zА-Яа-яA-Z]+)[\s]+(?:[а-яА-ЯA-Za-z]+|[а-яА-ЯA-Za-z]+[\s]*-[\s]*[a-zА-Яа-яA-Z]+)[\s]*(?:[а-яА-ЯA-Za-z]+|[а-яА-ЯA-Za-z]+[\s]*[a-zА-Яа-яA-Z]+[\s]*)$/
+  end
+
+  def self.phone_check(phone)
+    phone =~ /^(\+?[7]|[7]|[8])([-+()]*[0-9]{3}[-+()]*[0-9]{7}|[0-9]{10}|[-+()]*[0-9]{3}[-+()]*[-+()]*[0-9]{3}[-+()]*[0-9]{4}|[-+()]*[0-9]{3}[-+()]*[-+()]*[0-9]{3}[-+()]*[0-9]{2}[-+()]*[0-9]{2})\b/
+  end
+
+  def self.price_check(price)
+    price =~ /[0-9]+/
+  end
+
+  def self.date_check(date)
+    date =~ /^(?:0?[1-9]|[12]\d|3[01]).(?:0[1-9]|1[012]).(?:(19|20\d\d$)|(\d{2}$))/
+  end
+
+  def self.phone_format(phone)
+    if phone_check(phone)
+      s = phone.scan(/[0-9]/)
+      return [s[0],s[1,3].join(),s[4,10].join()].join("-")
+    else
+      raise ArgumentValueError.new("Неверный формат телефона")
+    end
+  end
+
+  def self.price_format(price)
+    if price_check(price)
+      s = price + ' ' + 'руб/ч'
+      return s
+    else
+      raise ArgumentValueError.new("Неверный формат цены")
+    end
+  end
+
+  def self.name_format(name)
+    if name_check(name)
+      s = name.downcase
+      s = name.gsub(/\s\s+/, " ").gsub(/\b./, &:upcase).gsub(/(?<=[а-яa-zA-ZА-Я])\s-\s(?=[а-яa-zA-ZА-Я])/, "-")
+      return s
+    else
+      raise ArgumentValueError.new("Неверный формат имени")
+    end
+  end
+
+  def self.date_format(date)
+    if date_check(date)
+      s=date.split(".").map{|i| i.size<2 ? "0"+i : i}.join(".")
+      return s
+    else
+      raise ArgumentValueError.new("Неверный формат даты рождения")
+    end
+  end
+
+  def to_s
+    "ФИО: #{full_name()}; Номер телефона: #{phone()}; Модель машины: #{car()}; Цена: #{price()}; Дата начала аренды: #{start_date()}; Дата конца аренды: #{end_date()}."
+  end
+
+end
+
+class ArgumentValueError < StandardError
+  def initialize(msg = "ArgumentValueError")
+    super msg
+  end
+end
+
+order1 = Order.new("Биба Боба Буба", "88005553535", "BMW X6", "1000", "05.06.2021", "06.06.2021")
+puts order1.to_s
