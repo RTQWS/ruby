@@ -1,0 +1,150 @@
+require_relative 'Order'
+require_relative 'OrderList'
+
+class OrderListView
+  attr_accessor :order_list
+  def initialize(order_list = OrderList.new())
+    @order_list = order_list
+  end
+
+  def add_order
+    puts "Введите параметры аренды: "
+    puts "ФИО клиента: "
+    full_name = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    puts "Мобильный телефон клиента: "
+    phone = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    puts "Модель машины: "
+    car = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    puts "Цена аренды (за час): "
+    price = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    puts "Дата начала аренды: "
+    start_date = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    puts "Дата конца аренды: "
+    end_date = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    order = Order.new(full_name, phone, car, price, start_date, end_date)
+    @order_list.add(order)
+  end
+
+  def delete_order
+    puts "Введите название заказа, который должен быть удален: "
+    target = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    order = @order_list.search(target)
+    puts(order.to_s)
+    puts("Вы уверены, что хотите удалить данные о заказе? [Да/Нет]")
+    answer = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil).downcase
+    @order_list.delete(order) if answer == "да"
+  end
+
+  def show_list
+    puts "Список заказов: "
+    puts @order_list.to_s
+  end
+
+  def write_file
+    @order_list.write_file()
+  end
+
+  def read_file
+    @order_list.read_file()
+  end
+
+  def find_order
+    puts "Введите ФИО клиента, телефон клиента, модель машины, дату начала аренды или дату конца аренды:"
+    value =  STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    if Order.name_check value
+      full_name = Order.name_format(value)
+      order = @order_list.search(full_name)
+    end
+
+    if Order.phone_check value
+      phone = Order.phone_format(value)
+      order = @order_list.search(phone)
+    end
+
+    if Order.date_check value
+      start_date = Order.date_format(value)
+      order = @order_list.search(start_date)
+    end
+
+    if Order.date_check value
+      end_date = Order.date_format(value)
+      order = @order_list.search(end_date)
+    end
+
+    car = value
+    order = @order_list.search(car)
+
+    puts order
+  end
+
+  def edit_order
+    show_list()
+    puts "Введите ФИО клиента, данные о заказе которого должны быть изменены: "
+    target= STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+    order = @order_list.search(target)
+    puts "Введите поле для редактирования: "
+    puts "1 - ФИО клиента"
+    puts "2 - Телефон клиента"
+    puts "3 - Модель машины"
+    puts "4 - Цена"
+    puts "5 - Дата начала аренды"
+    puts "6 - Дата окончания аренды"
+    puts "."
+    arg = STDIN.gets.chomp()
+    case arg
+    when "1"
+      puts "Текущее значение: #{order.full_name}"
+      order.full_name = Order.name_format(STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil))
+    when "2"
+      puts "Текущее значение: #{order.phone}"
+      order.phone = Order.phone_format(STDIN.gets.chomp)
+    when "3"
+      puts "Текущее значение: #{order.car}"
+      order.car = STDIN.gets.chomp
+    when "4"
+      puts "Текущее значение: #{order.price}"
+      order.price = Order.price_format(STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil))
+    when "5"
+      puts "Текущее значение: #{order.start_date}"
+      order.start_date = Order.date_format(STDIN.gets.chomp)
+    when "6"
+      puts "Текущее значение: #{order.end_date}"
+      order.end_date = STDIN.gets.chomp
+    end
+  end
+end
+
+test_order = OrderListView.new()
+def menu order
+  puts "1. Добавить заказ"
+  puts "2. Удалить заказ"
+  puts "3. Посмотреть список заказов"
+  puts "4. Запись в файл"
+  puts "5. Чтение из файла"
+  puts "6. Поиск заказа"
+  puts "7. Изменить данные о заказе"
+  puts "8. Закрыть программу"
+
+  method = STDIN.gets.chomp.force_encoding("cp866").encode("utf-8", replace: nil)
+  case method
+  when "1"
+    order.add_order()
+  when "2"
+    order.delete_order()
+  when "3"
+    order.show_list()
+  when "4"
+    order.write_file()
+  when "5"
+    order.read_file()
+  when "6"
+    order.find_order()
+  when "7"
+    order.edit_order()
+  when "8"
+    exit()
+  end
+  menu(order)
+end
+
+menu(test_order)
